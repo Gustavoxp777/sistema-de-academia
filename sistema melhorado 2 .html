@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>GymFlow Pro - Sistema de Gestão de Academia</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0a0c10;
+            color: #e2e8f0;
+            overflow-x: hidden;
+        }
+
+        /* Scrollbar personalizada */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #1a1e2c;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            border-radius: 10px;
+        }
+
+        /* Layout Principal */
+        .app {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Moderna */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #0f111a 0%, #080b12 100%);
+            backdrop-filter: blur(10px);
+            border-right: 1px solid rgba(99, 102, 241, 0.2);
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: all 0.3s ease;
+            z-index: 100;
+        }
+
+        .logo {
+            padding: 28px 24px;
+            border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+            margin-bottom: 24px;
+        }
+
+        .logo h2 {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #a78bfa, #6366f1);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo h2 i {
+            background: none;
+            -webkit-background-clip: unset;
+            color: #8b5cf6;
+        }
+
+        .nav-item {
+            padding: 12px 24px;
+            margin: 4px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: all 0.2s;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .nav-item i {
+            width: 24px;
+            font-size: 1.2rem;
+        }
+
+        .nav-item:hover {
+            background: rgba(99, 102, 241, 0.15);
+            color: #fff;
+            transform: translateX(4px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+
+        /* Conteúdo Principal */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 28px 32px;
+            min-height: 100vh;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .page-title h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #fff, #a78bfa);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .date-badge {
+            background: rgba(30, 41, 59, 0.6);
+            backdrop-filter: blur(10px);
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-size: 0.875rem;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+        }
+
+        /* Stats Grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #111827, #0f0f1a);
+            padding: 24px;
+            border-radius: 24px;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            border-color: rgba(99, 102, 241, 0.5);
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #6366f1, #a855f7);
+        }
+
+        .stat-card .icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+            background: rgba(99, 102, 241, 0.2);
+        }
+
+        .stat-card .label {
+            color: #94a3b8;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-top: 4px;
+        }
+
+        /* Cards Gerais */
+        .card {
+            background: linear-gradient(135deg, #111827, #0f0f1a);
+            border-radius: 24px;
+            border: 1px solid rgba(99, 102, 241, 0.2);
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            padding: 20px 28px;
+            border-bottom: 1px solid rgba(99, 102, 241, 0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .card-header h3 {
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        /* Tabelas */
+        .table-container {
+            overflow-x: auto;
+            padding: 0;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            padding: 16px 20px;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #94a3b8;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        td {
+            padding: 16px 20px;
+            border-bottom: 1px solid rgba(99, 102, 241, 0.1);
+            font-size: 0.875rem;
+        }
+
+        tr:hover {
+            background: rgba(99, 102, 241, 0.05);
+        }
+
+        /* Badges */
+        .badge {
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-success {
+            background: rgba(16, 185, 129, 0.2);
+            color: #10b981;
+            border: 1px solid #10b981;
+        }
+
+        .badge-danger {
+            background: rgba(239, 68, 68, 0.2);
+            color: #ef4444;
+            border: 1px solid #ef4444;
+        }
+
+        .badge-warning {
+            background: rgba(245, 158, 11, 0.2);
+            color: #f59e0b;
+            border: 1px solid #f59e0b;
+        }
+
+        /* Formulários */
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+            color: #94a3b8;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 16px;
+            background: #1a1e2c;
+            border: 1px solid rgba(99, 102, 241, 0.3);
+            border-radius: 12px;
+            font-size: 0.875rem;
+            color: #e2e8f0;
+            transition: all 0.2s;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #6366f1;
+            box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.2);
+        }
+
+        /* Botões */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-outline {
+            background: transparent;
+            border: 1px solid rgba(99, 102, 241, 0.5);
+            color: #e2e8f0;
+        }
+
+        .btn-outline:hover {
+            background: rgba(99, 102, 241, 0.1);
+        }
+
+        .btn-danger {
+            background: linear-gradient(135deg, #ef4444, #dc2626);
+            color: white;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.75rem;
+        }
+
+        /* Filtros */
+        .filters-bar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .filters-bar input, .filters-bar select {
+            max-width: 280px;
+        }
+
+        /* Alertas */
+        .alert {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 14px 24px;
+            border-radius: 12px;
+            background: #1e293b;
+            border-left: 4px solid;
+            z-index: 1000;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+        }
+
+        .alert-success {
+            border-left-color: #10b981;
+            color: #10b981;
+        }
+
+        .alert-error {
+            border-left-color: #ef4444;
+            color: #ef4444;
+        }
+
+        @keyframes slideIn {
+            from {
+                transform: translateX(100%);
+                opacity: 0;
+            }
+            to {
+                transform: translateX(0);
+                opacity: 1;
+            }
+        }
+
+        /* Tabs Content */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .action-icon {
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            margin: 0 4px;
+        }
+
+        .action-icon:hover {
+            background: rgba(99, 102, 241, 0.2);
+        }
+
+        /* Responsivo */
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 80px;
+            }
+            .logo h2 span, .nav-item span {
+                display: none;
+            }
+            .main-content {
+                margin-left: 80px;
+                padding: 16px;
+            }
+            .nav-item {
+                justify-content: center;
+                padding: 12px;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="logo">
+                <h2><i class="fas fa-dumbbell"></i> <span>GymFlow</span></h2>
+            </div>
+            <div class="nav-item active" data-tab="dashboard">
+                <i class="fas fa-chart-line"></i> <span>Dashboard</span>
+            </div>
+            <div class="nav-item" data-tab="alunos">
+                <i class="fas fa-users"></i> <span>Alunos</span>
+            </div>
+            <div class="nav-item" data-tab="pagamentos">
+                <i class="fas fa-credit-card"></i> <span>Pagamentos</span>
+            </div>
+            <div class="nav-item" data-tab="relatorios">
+                <i class="fas fa-file-alt"></i> <span>Relatórios</span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="page-title">
+                    <h1 id="pageTitle">Dashboard</h1>
+                </div>
+                <div class="date-badge">
+                    <i class="fas fa-calendar-alt"></i> <span id="currentDate"></span>
+                </div>
+            </div>
+
+            <!-- Dashboard -->
+            <div id="dashboard" class="tab-content active">
+                <div class="stats-grid" id="statsGrid"></div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-clock"></i> Vencimentos Próximos (até 7 dias)</h3>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead><tr><th>Aluno</th><th>Plano</th><th>Vencimento</th><th>Status</th></tr></thead>
+                            <tbody id="proximosVencimentos"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Alunos -->
+            <div id="alunos" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-user-plus"></i> Cadastrar Aluno</h3>
+                    </div>
+                    <div class="card-body" style="padding: 24px;">
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+                            <input type="text" id="nomeAluno" placeholder="Nome completo">
+                            <input type="email" id="emailAluno" placeholder="E-mail">
+                            <input type="text" id="telefoneAluno" placeholder="Telefone">
+                            <select id="planoAluno">
+                                <option value="30">Mensal - R$ 89,90</option>
+                                <option value="90">Trimestral - R$ 239,70</option>
+                                <option value="365">Anual - R$ 899,00</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" style="margin-top: 20px;" onclick="cadastrarAluno()">
+                            <i class="fas fa-save"></i> Cadastrar Aluno
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-list"></i> Lista de Alunos</h3>
+                    </div>
+                    <div style="padding: 20px;">
+                        <div class="filters-bar">
+                            <input type="text" id="searchAluno" placeholder="🔍 Buscar por nome..." onkeyup="filtrarAlunos()">
+                        </div>
+                        <div class="table-container">
+                            <table>
+                                <thead>
+                                    <tr><th>Nome</th><th>Email</th><th>Plano</th><th>Vencimento</th><th>Status</th><th>Ações</th></tr>
+                                </thead>
+                                <tbody id="listaAlunos"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pagamentos -->
+            <div id="pagamentos" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-hand-holding-usd"></i> Registrar Pagamento</h3>
+                    </div>
+                    <div class="card-body" style="padding: 24px;">
+                        <div class="form-group">
+                            <label>Selecione o Aluno</label>
+                            <select id="selectPagamentoAluno" style="width: 100%;"></select>
+                        </div>
+                        <div class="form-group">
+                            <label>Forma de Pagamento</label>
+                            <select id="formaPagamento">
+                                <option value="Dinheiro">💵 Dinheiro</option>
+                                <option value="PIX">📱 PIX</option>
+                                <option value="Cartão de Crédito">💳 Cartão de Crédito</option>
+                                <option value="Cartão de Débito">💳 Cartão de Débito</option>
+                                <option value="Transferência">🏦 Transferência</option>
+                            </select>
+                        </div>
+                        <button class="btn btn-primary" onclick="registrarPagamento()">
+                            <i class="fas fa-check-circle"></i> Confirmar Pagamento
+                        </button>
+                    </div>
+                </div>
+
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-history"></i> Histórico de Pagamentos</h3>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead><tr><th>Data</th><th>Aluno</th><th>Valor</th><th>Forma</th><th>Status</th></tr></thead>
+                            <tbody id="historicoPagamentos"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Relatórios -->
+            <div id="relatorios" class="tab-content">
+                <div class="stats-grid" id="relatoriosStats"></div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-download"></i> Exportar Dados</h3>
+                    </div>
+                    <div class="card-body" style="padding: 24px;">
+                        <button class="btn btn-primary" onclick="exportarCSV()" style="width: 100%;">
+                            <i class="fas fa-file-csv"></i> Exportar Relatório CSV
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // ==================== DADOS ====================
+        let alunos = [];
+        let historico = [];
+        let nextId = 1;
+
+        // Preços dos planos
+        const precos = { 30: 89.90, 90: 239.70, 365: 899.00 };
+        const nomesPlanos = { 30: "Mensal", 90: "Trimestral", 365: "Anual" };
+
+        // Carregar dados do localStorage
+        function carregarDados() {
+            const savedAlunos = localStorage.getItem("gym_alunos");
+            const savedHistorico = localStorage.getItem("gym_historico");
+            if (savedAlunos) alunos = JSON.parse(savedAlunos);
+            if (savedHistorico) historico = JSON.parse(savedHistorico);
+            if (alunos.length > 0) nextId = Math.max(...alunos.map(a => a.id)) + 1;
+            atualizarStatusAlunos();
+        }
+
+        function salvarDados() {
+            localStorage.setItem("gym_alunos", JSON.stringify(alunos));
+            localStorage.setItem("gym_historico", JSON.stringify(historico));
+        }
+
+        function mostrarAlerta(msg, tipo) {
+            const alertDiv = document.createElement("div");
+            alertDiv.className = `alert alert-${tipo}`;
+            alertDiv.innerHTML = `<i class="fas ${tipo === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i> ${msg}`;
+            document.body.appendChild(alertDiv);
+            setTimeout(() => alertDiv.remove(), 3000);
+        }
+
+        // Atualizar status baseado na data atual
+        function atualizarStatusAlunos() {
+            const hoje = new Date();
+            hoje.setHours(0, 0, 0, 0);
+            alunos.forEach(aluno => {
+                const venc = new Date(aluno.vencimento);
+                venc.setHours(0, 0, 0, 0);
+                if (venc < hoje) aluno.status = "Inadimplente";
+                else if (venc.getTime() === hoje.getTime()) aluno.status = "Vence Hoje";
+                else aluno.status = "Ativo";
+            });
+            salvarDados();
+        }
+
+        // Cadastrar novo aluno
+        function cadastrarAluno() {
+            const nome = document.getElementById("nomeAluno").value.trim();
+            const email = document.getElementById("emailAluno").value.trim();
+            const telefone = document.getElementById("telefoneAluno").value.trim();
+            const planoDias = parseInt(document.getElementById("planoAluno").value);
+
+            if (!nome) {
+                mostrarAlerta("Preencha o nome do aluno!", "error");
+                return;
+            }
+
+            const hoje = new Date();
+            const vencimento = new Date();
+            vencimento.setDate(hoje.getDate() + planoDias);
+
+            const novoAluno = {
+                id: nextId++,
+                nome: nome,
+                email: email || "Não informado",
+                telefone: telefone || "Não informado",
+                planoDias: planoDias,
+                planoNome: nomesPlanos[planoDias],
+                valorPlano: precos[planoDias],
+                dataCadastro: hoje.toISOString(),
+                vencimento: vencimento.toISOString(),
+                status: "Ativo"
+            };
+
+            alunos.push(novoAluno);
+            salvarDados();
+            mostrarAlerta(`Aluno ${nome} cadastrado com sucesso!`, "success");
+
+            // Limpar formulário
+            document.getElementById("nomeAluno").value = "";
+            document.getElementById("emailAluno").value = "";
+            document.getElementById("telefoneAluno").value = "";
+
+            atualizarTudo();
+        }
+
+        // Registrar pagamento
+        function registrarPagamento() {
+            const alunoId = parseInt(document.getElementById("selectPagamentoAluno").value);
+            const forma = document.getElementById("formaPagamento").value;
+
+            if (!alunoId) {
+                mostrarAlerta("Selecione um aluno!", "error");
+                return;
+            }
+
+            const aluno = alunos.find(a => a.id === alunoId);
+            if (!aluno) return;
+
+            const hoje = new Date();
+            const novoVencimento = new Date();
+            novoVencimento.setDate(hoje.getDate() + aluno.planoDias);
+
+            const pagamento = {
+                id: Date.now(),
+                alunoId: aluno.id,
+                alunoNome: aluno.nome,
+                valor: aluno.valorPlano,
+                forma: forma,
+                data: hoje.toISOString(),
+                status: "Pago"
+            };
+
+            historico.push(pagamento);
+            aluno.vencimento = novoVencimento.toISOString();
+            aluno.status = "Ativo";
+
+            salvarDados();
+            mostrarAlerta(`Pagamento de R$ ${aluno.valorPlano.toFixed(2)} registrado para ${aluno.nome}!`, "success");
+            atualizarTudo();
+        }
+
+        // Check-in simples
+        function checkinAluno(id) {
+            const aluno = alunos.find(a => a.id === id);
+            if (aluno) {
+                const hora = new Date().toLocaleTimeString();
+                mostrarAlerta(`✅ Check-in realizado: ${aluno.nome} às ${hora}`, "success");
+            }
+        }
+
+        // Excluir aluno
+        function excluirAluno(id) {
+            if (confirm("Tem certeza que deseja excluir este aluno?")) {
+                alunos = alunos.filter(a => a.id !== id);
+                salvarDados();
+                mostrarAlerta("Aluno removido com sucesso!", "success");
+                atualizarTudo();
+            }
+        }
+
+        // Filtrar alunos
+        function filtrarAlunos() {
+            const termo = document.getElementById("searchAluno")?.value.toLowerCase() || "";
+            const rows = document.querySelectorAll("#listaAlunos tr");
+            rows.forEach(row => {
+                const nome = row.cells[0]?.innerText.toLowerCase() || "";
+                row.style.display = nome.includes(termo) ? "" : "none";
+            });
+        }
+
+        // Renderizar Dashboard
+        function renderizarDashboard() {
+            const total = alunos.length;
+            const ativos = alunos.filter(a => a.status === "Ativo").length;
+            const inadimplentes = alunos.filter(a => a.status === "Inadimplente").length;
+            
+            const umMesAtras = new Date();
+            umMesAtras.setDate(umMesAtras.getDate() - 30);
+            const receita = historico.filter(p => new Date(p.data) >= umMesAtras).reduce((sum, p) => sum + p.valor, 0);
+
+            document.getElementById("statsGrid").innerHTML = `
+                <div class="stat-card"><div class="icon"><i class="fas fa-users"></i></div><div class="label">Total de Alunos</div><div class="value">${total}</div></div>
+                <div class="stat-card"><div class="icon"><i class="fas fa-check-circle"></i></div><div class="label">Alunos Ativos</div><div class="value">${ativos}</div></div>
+                <div class="stat-card"><div class="icon"><i class="fas fa-exclamation-triangle"></i></div><div class="label">Inadimplentes</div><div class="value">${inadimplentes}</div></div>
+                <div class="stat-card"><div class="icon"><i class="fas fa-dollar-sign"></i></div><div class="label">Receita Mensal</div><div class="value">R$ ${receita.toFixed(2)}</div></div>
+            `;
+
+            const hoje = new Date();
+            const proximos = alunos.filter(a => {
+                const venc = new Date(a.vencimento);
+                const diff = venc.getTime() - hoje.getTime();
+                return diff > 0 && diff <= 7 * 24 * 60 * 60 * 1000;
+            });
+
+            const proximosHtml = proximos.map(a => {
+                const venc = new Date(a.vencimento);
+                let statusClass = "badge-warning";
+                if (a.status === "Vence Hoje") statusClass = "badge-warning";
+                return `<tr><td><strong>${a.nome}</strong></td><td>${a.planoNome}</td><td>${venc.toLocaleDateString('pt-BR')}</td><td><span class="badge ${statusClass}">${a.status}</span></td></tr>`;
+            }).join("");
+            document.getElementById("proximosVencimentos").innerHTML = proximosHtml || "<tr><td colspan='4' style='text-align:center;'>Nenhum vencimento próximo</td></tr>";
+        }
+
+        // Renderizar Alunos
+        function renderizarAlunos() {
+            const tbody = document.getElementById("listaAlunos");
+            tbody.innerHTML = alunos.map(a => {
+                const venc = new Date(a.vencimento);
+                let statusClass = "badge-success";
+                if (a.status === "Inadimplente") statusClass = "badge-danger";
+                else if (a.status === "Vence Hoje") statusClass = "badge-warning";
+                return `<tr>
+                    <td><strong>${a.nome}</strong><br><small>${a.telefone}</small></td>
+                    <td>${a.email}</td>
+                    <td>${a.planoNome}<br><small>R$ ${a.valorPlano.toFixed(2)}</small></td>
+                    <td>${venc.toLocaleDateString('pt-BR')}</td>
+                    <td><span class="badge ${statusClass}">${a.status}</span></td>
+                    <td>
+                        <i class="fas fa-calendar-check action-icon" onclick="checkinAluno(${a.id})" style="color:#10b981;"></i>
+                        <i class="fas fa-trash action-icon" onclick="excluirAluno(${a.id})" style="color:#ef4444;"></i>
+                    </td>
+                </tr>`;
+            }).join("");
+            if (alunos.length === 0) tbody.innerHTML = "<tr><td colspan='6' style='text-align:center;'>Nenhum aluno cadastrado</td></tr>";
+        }
+
+        // Renderizar Pagamentos
+        function renderizarPagamentos() {
+            const select = document.getElementById("selectPagamentoAluno");
+            select.innerHTML = "<option value=''>Selecione um aluno</option>" + 
+                alunos.map(a => `<option value="${a.id}">${a.nome} - ${a.planoNome} (${a.status === "Inadimplente" ? "Inadimplente" : "Ativo"})</option>`).join("");
+
+            const historicoHtml = historico.slice().reverse().map(p => `
+                <tr>
+                    <td>${new Date(p.data).toLocaleDateString('pt-BR')}</td>
+                    <td>${p.alunoNome}</td>
+                    <td>R$ ${p.valor.toFixed(2)}</td>
+                    <td>${p.forma}</td>
+                    <td><span class="badge badge-success">${p.status}</span></td>
+                </tr>
+            `).join("");
+            document.getElementById("historicoPagamentos").innerHTML = historicoHtml || "<tr><td colspan='5' style='text-align:center;'>Nenhum pagamento registrado</td></tr>";
+        }
+
+        // Renderizar Relatórios
+        function renderizarRelatorios() {
+            const totalArrecadado = historico.reduce((sum, p) => sum + p.valor, 0);
+            const media = alunos.length > 0 ? totalArrecadado / alunos.length : 0;
+            document.getElementById("relatoriosStats").innerHTML = `
+                <div class="stat-card"><div class="icon"><i class="fas fa-chart-line"></i></div><div class="label">Total Arrecadado</div><div class="value">R$ ${totalArrecadado.toFixed(2)}</div></div>
+                <div class="stat-card"><div class="icon"><i class="fas fa-chart-simple"></i></div><div class="label">Média por Aluno</div><div class="value">R$ ${media.toFixed(2)}</div></div>
+            `;
+        }
+
+        // Exportar CSV
+        function exportarCSV() {
+            let csv = "Data,Aluno,Valor,Forma de Pagamento,Status\n";
+            historico.forEach(p => {
+                csv += `${new Date(p.data).toLocaleDateString('pt-BR')},${p.alunoNome},${p.valor},${p.forma},${p.status}\n`;
+            });
+            const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.href = url;
+            link.download = `relatorio_gymflow_${new Date().toLocaleDateString()}.csv`;
+            link.click();
+            URL.revokeObjectURL(url);
+            mostrarAlerta("Relatório exportado com sucesso!", "success");
+        }
+
+        // Navegação entre abas
+        function mudarTab(tab) {
+            document.querySelectorAll(".nav-item").forEach(item => item.classList.remove("active"));
+            document.querySelectorAll(".tab-content").forEach(content => content.classList.remove("active"));
+            document.querySelector(`.nav-item[data-tab="${tab}"]`).classList.add("active");
+            document.getElementById(tab).classList.add("active");
+
+            const titles = { dashboard: "Dashboard", alunos: "Alunos", pagamentos: "Pagamentos", relatorios: "Relatórios" };
+            document.getElementById("pageTitle").innerHTML = titles[tab];
+        }
+
+        function atualizarTudo() {
+            atualizarStatusAlunos();
+            renderizarDashboard();
+            renderizarAlunos();
+            renderizarPagamentos();
+            renderizarRelatorios();
+            document.getElementById("currentDate").innerHTML = new Date().toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        // Eventos de navegação
+        document.querySelectorAll(".nav-item").forEach(item => {
+            item.addEventListener("click", () => mudarTab(item.getAttribute("data-tab")));
+        });
+
+        // Inicialização
+        carregarDados();
+        atualizarTudo();
+        setInterval(() => {
+            atualizarStatusAlunos();
+            renderizarDashboard();
+            renderizarAlunos();
+        }, 60000);
+    </script>
+</body>
+</html>

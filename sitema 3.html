@@ -1,0 +1,903 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Academia PowerGest - Sistema Completo de Gestão</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #f5f7fa 0%, #e9edf2 100%);
+            min-height: 100vh;
+        }
+
+        /* Layout Principal */
+        .app-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        /* Sidebar */
+        .sidebar {
+            width: 280px;
+            background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+            color: white;
+            position: fixed;
+            height: 100vh;
+            overflow-y: auto;
+            transition: all 0.3s;
+            z-index: 100;
+            box-shadow: 4px 0 20px rgba(0,0,0,0.1);
+        }
+
+        .sidebar-header {
+            padding: 28px 24px;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            margin-bottom: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 1.4rem;
+            font-weight: 800;
+        }
+
+        .logo i {
+            font-size: 2rem;
+            color: #3b82f6;
+        }
+
+        .logo span {
+            background: linear-gradient(135deg, #fff, #94a3b8);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .nav-item {
+            padding: 14px 24px;
+            margin: 6px 16px;
+            border-radius: 12px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            transition: all 0.2s;
+            color: #94a3b8;
+            font-weight: 500;
+        }
+
+        .nav-item i {
+            width: 24px;
+            font-size: 1.2rem;
+        }
+
+        .nav-item:hover {
+            background: rgba(59,130,246,0.2);
+            color: white;
+            transform: translateX(4px);
+        }
+
+        .nav-item.active {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+            box-shadow: 0 4px 12px rgba(59,130,246,0.3);
+        }
+
+        /* Conteúdo Principal */
+        .main-content {
+            margin-left: 280px;
+            flex: 1;
+            padding: 28px 32px;
+        }
+
+        /* Top Bar */
+        .top-bar {
+            background: white;
+            padding: 20px 28px;
+            border-radius: 20px;
+            margin-bottom: 28px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.05);
+            border: 1px solid #e2e8f0;
+            flex-wrap: wrap;
+            gap: 16px;
+        }
+
+        .page-title h1 {
+            font-size: 1.75rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #0f172a, #3b82f6);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .page-title p {
+            color: #64748b;
+            margin-top: 6px;
+            font-size: 0.875rem;
+        }
+
+        .date-badge {
+            background: #f1f5f9;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        /* Stats Cards */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 24px;
+            margin-bottom: 32px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 24px;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 12px 24px rgba(0,0,0,0.1);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: #3b82f6;
+        }
+
+        .stat-card .icon {
+            width: 52px;
+            height: 52px;
+            border-radius: 16px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.5rem;
+            margin-bottom: 16px;
+        }
+
+        .stat-card .label {
+            color: #64748b;
+            font-size: 0.875rem;
+            font-weight: 500;
+        }
+
+        .stat-card .value {
+            font-size: 2rem;
+            font-weight: 800;
+            margin-top: 4px;
+        }
+
+        /* Cards */
+        .card {
+            background: white;
+            border-radius: 20px;
+            border: 1px solid #e2e8f0;
+            overflow: hidden;
+            margin-bottom: 24px;
+        }
+
+        .card-header {
+            padding: 20px 28px;
+            border-bottom: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .card-header h3 {
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .table-container {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            padding: 16px 20px;
+            text-align: left;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #64748b;
+            background: #f8fafc;
+        }
+
+        td {
+            padding: 16px 20px;
+            border-bottom: 1px solid #e2e8f0;
+            font-size: 0.875rem;
+        }
+
+        tr:hover {
+            background: #f8fafc;
+        }
+
+        /* Badges */
+        .badge {
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .badge-success {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .badge-warning {
+            background: #fed7aa;
+            color: #9b2c1d;
+        }
+
+        .badge-danger {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .badge-info {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        /* Botões */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            border: none;
+            transition: all 0.2s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 0.875rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #3b82f6, #2563eb);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(59,130,246,0.4);
+        }
+
+        .btn-outline {
+            background: white;
+            border: 1px solid #e2e8f0;
+            color: #1e293b;
+        }
+
+        .btn-outline:hover {
+            background: #f1f5f9;
+        }
+
+        .btn-small {
+            padding: 6px 12px;
+            font-size: 0.75rem;
+        }
+
+        .btn-danger {
+            background: #ef4444;
+            color: white;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal {
+            background: white;
+            width: 90%;
+            max-width: 550px;
+            border-radius: 24px;
+            padding: 32px;
+            animation: modalSlide 0.3s ease;
+        }
+
+        @keyframes modalSlide {
+            from {
+                transform: translateY(-40px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 0.875rem;
+        }
+
+        input,
+        select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #e2e8f0;
+            border-radius: 12px;
+            font-size: 0.875rem;
+            transition: all 0.2s;
+        }
+
+        input:focus,
+        select:focus {
+            outline: none;
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+        }
+
+        /* Filtros */
+        .filters-bar {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 24px;
+        }
+
+        .filters-bar input,
+        .filters-bar select {
+            max-width: 260px;
+        }
+
+        /* Tabs Content */
+        .tab-content {
+            display: none;
+            animation: fadeIn 0.3s;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .action-icon {
+            cursor: pointer;
+            padding: 6px;
+            border-radius: 8px;
+            transition: all 0.2s;
+            margin: 0 4px;
+        }
+
+        .action-icon:hover {
+            background: #e2e8f0;
+        }
+
+        .edit-icon {
+            color: #3b82f6;
+        }
+
+        .delete-icon {
+            color: #ef4444;
+        }
+
+        @media (max-width: 768px) {
+            .sidebar {
+                width: 80px;
+            }
+            .sidebar-header span,
+            .nav-item span {
+                display: none;
+            }
+            .main-content {
+                margin-left: 80px;
+                padding: 16px;
+            }
+            .nav-item {
+                justify-content: center;
+                padding: 14px;
+            }
+            .nav-item i {
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <i class="fas fa-dumbbell"></i>
+                    <span>POWERGEST</span>
+                </div>
+            </div>
+            <div class="nav-item active" data-tab="dashboard">
+                <i class="fas fa-chart-line"></i>
+                <span>Dashboard</span>
+            </div>
+            <div class="nav-item" data-tab="membros">
+                <i class="fas fa-users"></i>
+                <span>Membros</span>
+            </div>
+            <div class="nav-item" data-tab="planos">
+                <i class="fas fa-tags"></i>
+                <span>Planos</span>
+            </div>
+            <div class="nav-item" data-tab="financeiro">
+                <i class="fas fa-wallet"></i>
+                <span>Financeiro</span>
+            </div>
+            <div class="nav-item" data-tab="treinos">
+                <i class="fas fa-calendar-check"></i>
+                <span>Check-ins</span>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <div class="top-bar">
+                <div class="page-title">
+                    <h1 id="pageTitle">Dashboard</h1>
+                    <p id="pageSubtitle">Visão geral da sua academia</p>
+                </div>
+                <div class="date-badge">
+                    <i class="fas fa-calendar-alt"></i> <span id="currentDate"></span>
+                </div>
+            </div>
+
+            <!-- Dashboard Tab -->
+            <div id="dashboard" class="tab-content active">
+                <div class="stats-grid" id="dashboardStats"></div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-clock"></i> Últimos Membros</h3>
+                        <button class="btn btn-outline btn-small" onclick="switchTab('membros')">Ver todos <i class="fas fa-arrow-right"></i></button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr><th>Nome</th><th>Plano</th><th>Status</th><th>Data Cadastro</th></tr>
+                            </thead>
+                            <tbody id="recentMembers"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Membros Tab -->
+            <div id="membros" class="tab-content">
+                <div class="filters-bar">
+                    <input type="text" id="searchMembro" placeholder="🔍 Buscar por nome, email ou CPF..." style="flex:1;">
+                    <select id="filterPlanoMembro">
+                        <option value="todos">Todos os planos</option>
+                    </select>
+                    <select id="filterStatusMembro">
+                        <option value="todos">Todos os status</option>
+                        <option value="Ativo">Ativo</option>
+                        <option value="Pendente">Pendente</option>
+                        <option value="Inativo">Inativo</option>
+                    </select>
+                    <button class="btn btn-primary" onclick="openModal('modalMembro')"><i class="fas fa-plus"></i> Novo Membro</button>
+                </div>
+                <div class="card">
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr><th>Nome</th><th>CPF</th><th>Email</th><th>Plano</th><th>Status</th><th>Vencimento</th><th>Ações</th></tr>
+                            </thead>
+                            <tbody id="membrosTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Planos Tab -->
+            <div id="planos" class="tab-content">
+                <div class="stats-grid" id="planosGrid"></div>
+            </div>
+
+            <!-- Financeiro Tab -->
+            <div id="financeiro" class="tab-content">
+                <div class="stats-grid" id="financeiroStats"></div>
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-receipt"></i> Histórico de Pagamentos</h3>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr><th>Membro</th><th>Valor</th><th>Data</th><th>Método</th><th>Status</th></tr>
+                            </thead>
+                            <tbody id="financeiroTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Treinos Tab -->
+            <div id="treinos" class="tab-content">
+                <div class="card">
+                    <div class="card-header">
+                        <h3><i class="fas fa-dumbbell"></i> Últimos Check-ins</h3>
+                        <button class="btn btn-primary btn-small" onclick="registrarCheckin()"><i class="fas fa-qrcode"></i> Registrar Check-in</button>
+                    </div>
+                    <div class="table-container">
+                        <table>
+                            <thead>
+                                <tr><th>Membro</th><th>Horário</th><th>Data</th><th>Tipo de Treino</th></tr>
+                            </thead>
+                            <tbody id="treinosTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Cadastro Membro -->
+    <div class="modal-overlay" id="modalMembro">
+        <div class="modal">
+            <h2 style="margin-bottom: 24px;"><i class="fas fa-user-plus"></i> Cadastrar Membro</h2>
+            <form id="formMembro">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label>Nome Completo *</label>
+                        <input type="text" id="membroNome" required>
+                    </div>
+                    <div class="form-group">
+                        <label>CPF</label>
+                        <input type="text" id="membroCpf" placeholder="000.000.000-00">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>E-mail</label>
+                    <input type="email" id="membroEmail">
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+                    <div class="form-group">
+                        <label>Plano</label>
+                        <select id="membroPlano"></select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="membroStatus">
+                            <option>Ativo</option>
+                            <option>Pendente</option>
+                            <option>Inativo</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="display: flex; justify-content: flex-end; gap: 12px; margin-top: 24px;">
+                    <button type="button" class="btn btn-outline" onclick="closeModal('modalMembro')">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Salvar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // ==================== DADOS DO SISTEMA ====================
+        let membros = [];
+        let planos = [
+            { id: 1, nome: "Mensal Básico", preco: 89.90, periodo: "Mensal", beneficios: ["Musculação", "Aeróbicos"] },
+            { id: 2, nome: "Trimestral Pro", preco: 239.70, periodo: "Trimestral", beneficios: ["Musculação", "Aulas Coletivas", "Avaliação Física"] },
+            { id: 3, nome: "Anual Black", preco: 899.00, periodo: "Anual", beneficios: ["Acesso Ilimitado", "Área VIP", "Leva um Amigo", "Cadeira de Massagem"] }
+        ];
+        let pagamentos = [];
+        let checkins = [];
+        let nextId = 51;
+
+        // ==================== FUNÇÕES AUXILIARES ====================
+        function getPlanoById(id) {
+            return planos.find(p => p.id === id) || planos[0];
+        }
+
+        function formatCurrency(value) {
+            return `R$ ${value.toFixed(2).replace('.', ',')}`;
+        }
+
+        // ==================== GERAR DADOS INICIAIS ====================
+        function gerarDadosIniciais() {
+            const primeiros = ["João", "Maria", "Pedro", "Ana", "Lucas", "Julia", "Gabriel", "Beatriz", "Rafael", "Larissa", "Matheus", "Camila", "Gustavo", "Isabela", "Bruno", "Letícia", "Felipe", "Mariana", "Carlos", "Amanda"];
+            const sobrenomes = ["Silva", "Santos", "Oliveira", "Souza", "Rodrigues", "Ferreira", "Alves", "Pereira", "Lima", "Gomes", "Costa", "Ribeiro"];
+            
+            for (let i = 1; i <= 45; i++) {
+                const nome = `${primeiros[i % primeiros.length]} ${sobrenomes[i % sobrenomes.length]} ${i}`;
+                const plano = planos[Math.floor(Math.random() * 3)];
+                const rand = Math.random();
+                let status = "Ativo";
+                if (rand > 0.75) status = "Inativo";
+                else if (rand > 0.6) status = "Pendente";
+                
+                const vencimento = new Date(2026, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1);
+                
+                membros.push({
+                    id: i,
+                    nome: nome,
+                    cpf: `${Math.floor(Math.random() * 900 + 100)}.${Math.floor(Math.random() * 900 + 100)}.${Math.floor(Math.random() * 900 + 100)}-${Math.floor(Math.random() * 90 + 10)}`,
+                    email: `${primeiros[i % primeiros.length].toLowerCase()}${i}@email.com`,
+                    planoId: plano.id,
+                    status: status,
+                    dataCadastro: new Date(2025, Math.floor(Math.random() * 12), Math.floor(Math.random() * 28) + 1).toLocaleDateString('pt-BR'),
+                    vencimento: vencimento.toLocaleDateString('pt-BR')
+                });
+                
+                // Gerar pagamentos
+                if (status !== "Inativo") {
+                    pagamentos.push({
+                        id: i,
+                        membro: nome,
+                        valor: plano.preco / (plano.id === 1 ? 1 : (plano.id === 2 ? 3 : 12)),
+                        data: new Date().toLocaleDateString('pt-BR'),
+                        metodo: ["PIX", "Cartão", "Dinheiro", "Débito"][Math.floor(Math.random() * 4)],
+                        status: status === "Ativo" ? (Math.random() > 0.2 ? "Pago" : "Atrasado") : "Atrasado"
+                    });
+                }
+                
+                // Gerar check-ins
+                if (status === "Ativo" && Math.random() > 0.5) {
+                    checkins.push({
+                        membro: nome,
+                        hora: `${Math.floor(Math.random() * 12 + 7)}:${Math.floor(Math.random() * 60).toString().padStart(2, '0')}`,
+                        data: new Date().toLocaleDateString('pt-BR'),
+                        tipo: ["Hipertrofia", "Cardio", "Funcional", "Crossfit", "Pilates"][Math.floor(Math.random() * 5)]
+                    });
+                }
+            }
+            nextId = 51;
+        }
+
+        // ==================== RENDERIZAÇÃO ====================
+        function renderizarTudo() {
+            renderizarDashboard();
+            renderizarMembros();
+            renderizarPlanos();
+            renderizarFinanceiro();
+            renderizarCheckins();
+            atualizarSelectPlanos();
+        }
+
+        function renderizarDashboard() {
+            const ativos = membros.filter(m => m.status === "Ativo").length;
+            const pendentes = membros.filter(m => m.status === "Pendente").length;
+            const inativos = membros.filter(m => m.status === "Inativo").length;
+            const receitaTotal = pagamentos.filter(p => p.status === "Pago").reduce((acc, p) => acc + p.valor, 0);
+            const ocupacao = ((ativos / membros.length) * 100).toFixed(1);
+            
+            document.getElementById('dashboardStats').innerHTML = `
+                <div class="stat-card"><div class="icon" style="background:#dbeafe;color:#3b82f6;"><i class="fas fa-users"></i></div><div class="label">Membros Ativos</div><div class="value">${ativos}</div></div>
+                <div class="stat-card"><div class="icon" style="background:#dcfce7;color:#10b981;"><i class="fas fa-dollar-sign"></i></div><div class="label">Receita Mensal</div><div class="value">${formatCurrency(receitaTotal)}</div></div>
+                <div class="stat-card"><div class="icon" style="background:#fed7aa;color:#f59e0b;"><i class="fas fa-clock"></i></div><div class="label">Pendentes</div><div class="value">${pendentes}</div></div>
+                <div class="stat-card"><div class="icon" style="background:#fee2e2;color:#ef4444;"><i class="fas fa-chart-line"></i></div><div class="label">Ocupação</div><div class="value">${ocupacao}%</div></div>
+            `;
+            
+            const recentes = [...membros].reverse().slice(0, 5);
+            document.getElementById('recentMembers').innerHTML = recentes.map(m => `
+                <tr>
+                    <td><strong>${m.nome}</strong><br><small style="color:#64748b">${m.email}</small></td>
+                    <td>${getPlanoById(m.planoId).nome}</td>
+                    <td><span class="badge ${m.status === 'Ativo' ? 'badge-success' : (m.status === 'Pendente' ? 'badge-warning' : 'badge-danger')}">${m.status}</span></td>
+                    <td>${m.dataCadastro}</td>
+                </tr>
+            `).join('');
+            
+            document.getElementById('currentDate').innerHTML = new Date().toLocaleDateString('pt-BR', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        }
+
+        function renderizarMembros() {
+            const search = document.getElementById('searchMembro')?.value.toLowerCase() || '';
+            const filterPlano = document.getElementById('filterPlanoMembro')?.value || 'todos';
+            const filterStatus = document.getElementById('filterStatusMembro')?.value || 'todos';
+            
+            let filtrados = membros.filter(m => {
+                const matchSearch = m.nome.toLowerCase().includes(search) || m.email.toLowerCase().includes(search) || m.cpf.includes(search);
+                const matchPlano = filterPlano === 'todos' || m.planoId == filterPlano;
+                const matchStatus = filterStatus === 'todos' || m.status === filterStatus;
+                return matchSearch && matchPlano && matchStatus;
+            });
+            
+            document.getElementById('membrosTable').innerHTML = filtrados.map(m => `
+                <tr>
+                    <td><strong>${m.nome}</strong></td>
+                    <td>${m.cpf}</td>
+                    <td>${m.email}</td>
+                    <td>${getPlanoById(m.planoId).nome}</td>
+                    <td><span class="badge ${m.status === 'Ativo' ? 'badge-success' : (m.status === 'Pendente' ? 'badge-warning' : 'badge-danger')}">${m.status}</span></td>
+                    <td>${m.vencimento}</td>
+                    <td>
+                        <i class="fas fa-edit action-icon edit-icon" onclick="editarMembro(${m.id})"></i>
+                        <i class="fas fa-trash action-icon delete-icon" onclick="excluirMembro(${m.id})"></i>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderizarPlanos() {
+            document.getElementById('planosGrid').innerHTML = planos.map(p => `
+                <div class="stat-card" style="border-top: 4px solid #3b82f6;">
+                    <h3 style="font-size: 1.3rem; margin-bottom: 8px;">${p.nome}</h3>
+                    <div class="value" style="color: #3b82f6;">${formatCurrency(p.preco)}</div>
+                    <div class="label">${p.periodo}</div>
+                    <ul style="margin-top: 16px; list-style: none;">
+                        ${p.beneficios.map(b => `<li style="margin: 8px 0;"><i class="fas fa-check-circle" style="color: #10b981; margin-right: 8px;"></i>${b}</li>`).join('')}
+                    </ul>
+                </div>
+            `).join('');
+        }
+
+        function renderizarFinanceiro() {
+            const recebido = pagamentos.filter(p => p.status === "Pago").reduce((acc, p) => acc + p.valor, 0);
+            const pendente = pagamentos.filter(p => p.status === "Atrasado").reduce((acc, p) => acc + p.valor, 0);
+            
+            document.getElementById('financeiroStats').innerHTML = `
+                <div class="stat-card"><div class="icon" style="background:#dcfce7;"><i class="fas fa-check-circle"></i></div><div class="label">Recebido</div><div class="value">${formatCurrency(recebido)}</div></div>
+                <div class="stat-card"><div class="icon" style="background:#fee2e2;"><i class="fas fa-exclamation-triangle"></i></div><div class="label">Pendente</div><div class="value">${formatCurrency(pendente)}</div></div>
+            `;
+            
+            document.getElementById('financeiroTable').innerHTML = pagamentos.slice(-20).reverse().map(p => `
+                <tr>
+                    <td>${p.membro}</td>
+                    <td>${formatCurrency(p.valor)}</td>
+                    <td>${p.data}</td>
+                    <td>${p.metodo}</td>
+                    <td><span class="badge ${p.status === 'Pago' ? 'badge-success' : 'badge-danger'}">${p.status}</span></td>
+                </tr>
+            `).join('');
+        }
+
+        function renderizarCheckins() {
+            document.getElementById('treinosTable').innerHTML = checkins.slice(-15).reverse().map(c => `
+                <tr>
+                    <td><strong>${c.membro}</strong></td>
+                    <td>${c.hora}</td>
+                    <td>${c.data}</td>
+                    <td>${c.tipo}</td>
+                </tr>
+            `).join('');
+        }
+
+        function atualizarSelectPlanos() {
+            const selectPlano = document.getElementById('membroPlano');
+            if (selectPlano) {
+                selectPlano.innerHTML = planos.map(p => `<option value="${p.id}">${p.nome} - ${formatCurrency(p.preco)}</option>`).join('');
+            }
+            const filterPlano = document.getElementById('filterPlanoMembro');
+            if (filterPlano) {
+                filterPlano.innerHTML = '<option value="todos">Todos os planos</option>' + planos.map(p => `<option value="${p.id}">${p.nome}</option>`).join('');
+            }
+        }
+
+        // ==================== CRUD MEMBROS ====================
+        function adicionarMembro(event) {
+            event.preventDefault();
+            const novo = {
+                id: nextId++,
+                nome: document.getElementById('membroNome').value,
+                cpf: document.getElementById('membroCpf').value || '---',
+                email: document.getElementById('membroEmail').value || 'sem@email.com',
+                planoId: parseInt(document.getElementById('membroPlano').value),
+                status: document.getElementById('membroStatus').value,
+                dataCadastro: new Date().toLocaleDateString('pt-BR'),
+                vencimento: new Date(2026, 4, 28).toLocaleDateString('pt-BR')
+            };
+            membros.unshift(novo);
+            renderizarTudo();
+            closeModal('modalMembro');
+            document.getElementById('formMembro').reset();
+            alert(`✅ Membro ${novo.nome} cadastrado com sucesso!`);
+        }
+
+        function editarMembro(id) {
+            const membro = membros.find(m => m.id === id);
+            if (membro) {
+                document.getElementById('membroNome').value = membro.nome;
+                document.getElementById('membroCpf').value = membro.cpf;
+                document.getElementById('membroEmail').value = membro.email;
+                document.getElementById('membroPlano').value = membro.planoId;
+                document.getElementById('membroStatus').value = membro.status;
+                
+                const form = document.getElementById('formMembro');
+                const oldSubmit = form.onsubmit;
+                form.onsubmit = (e) => {
+                    e.preventDefault();
+                    membro.nome = document.getElementById('membroNome').value;
+                    membro.cpf = document.getElementById('membroCpf').value;
+                    membro.email = document.getElementById('membroEmail').value;
+                    membro.planoId = parseInt(document.getElementById('membroPlano').value);
+                    membro.status = document.getElementById('membroStatus').value;
+                    renderizarTudo();
+                    closeModal('modalMembro');
+                    form.onsubmit = adicionarMembro;
+                    alert(`✏️ Membro ${membro.nome} atualizado!`);
+                };
+                openModal('modalMembro');
+            }
+        }
+
+        function excluirMembro(id) {
+            if (confirm('Tem certeza que deseja excluir este membro permanentemente?')) {
+                membros = membros.filter(m => m.id !== id);
+                renderizarTudo();
+                alert('🗑️ Membro removido com sucesso!');
+            }
+        }
+
+        function registrarCheckin() {
+            const ativos = membros.filter(m => m.status === "Ativo");
+            if (ativos.length === 0) {
+                alert('❌ Nenhum membro ativo para registrar check-in!');
+                return;
+            }
+            const aleatorio = ativos[Math.floor(Math.random() * ativos.length)];
+            checkins.unshift({
+                membro: aleatorio.nome,
+                hora: new Date().toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' }),
+                data: new Date().toLocaleDateString('pt-BR'),
+                tipo: ["Hipertrofia", "Cardio", "Funcional", "Crossfit", "Pilates"][Math.floor(Math.random() * 5)]
+            });
+            renderizarCheckins();
+            alert(`✅ Check-in realizado para ${aleatorio.nome}!`);
+        }
+
+        //

@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>Academia PowerFit - Sistema de Gestão</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, 'Helvetica Neue', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(145deg, #f0f2f5 0%, #e6e9ef 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        /* Container principal */
+        .dashboard {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #0b2b40, #0a1f2c);
+            color: white;
+            padding: 1.5rem 2rem;
+            border-radius: 32px;
+            margin-bottom: 30px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .logo h1 {
+            font-size: 1.8rem;
+            letter-spacing: -0.5px;
+        }
+
+        .logo p {
+            font-size: 0.85rem;
+            opacity: 0.8;
+        }
+
+        .stats-cards {
+            display: flex;
+            gap: 20px;
+        }
+
+        .stat-card {
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(5px);
+            border-radius: 24px;
+            padding: 10px 24px;
+            text-align: center;
+            transition: transform 0.2s;
+        }
+
+        .stat-card span {
+            font-size: 1.9rem;
+            font-weight: 800;
+            display: block;
+        }
+
+        .stat-card label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        /* Grid principal */
+        .grid {
+            display: grid;
+            grid-template-columns: 1fr 1.4fr;
+            gap: 25px;
+            margin-bottom: 30px;
+        }
+
+        /* Cards gerais */
+        .card {
+            background: white;
+            border-radius: 28px;
+            box-shadow: 0 12px 28px rgba(0,0,0,0.08);
+            overflow: hidden;
+            transition: all 0.2s;
+        }
+
+        .card-header {
+            background: #f8fafc;
+            padding: 1.2rem 1.8rem;
+            border-bottom: 1px solid #e2e8f0;
+            font-weight: 700;
+            font-size: 1.3rem;
+            color: #0f2c3d;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .card-body {
+            padding: 1.8rem;
+        }
+
+        /* Formulários */
+        .form-group {
+            margin-bottom: 1.2rem;
+        }
+
+        label {
+            font-weight: 600;
+            display: block;
+            margin-bottom: 6px;
+            color: #1e2f3e;
+            font-size: 0.85rem;
+        }
+
+        input, select {
+            width: 100%;
+            padding: 12px 16px;
+            border: 1px solid #cbd5e1;
+            border-radius: 24px;
+            font-size: 0.95rem;
+            transition: 0.2s;
+            background: #fff;
+        }
+
+        input:focus, select:focus {
+            outline: none;
+            border-color: #2c7da0;
+            box-shadow: 0 0 0 3px rgba(44,125,160,0.2);
+        }
+
+        button {
+            background: #2c7da0;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            width: 100%;
+        }
+
+        button:hover {
+            background: #1f5e7a;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.1);
+        }
+
+        .btn-secondary {
+            background: #475569;
+        }
+
+        .btn-secondary:hover {
+            background: #334155;
+        }
+
+        .btn-danger {
+            background: #b91c1c;
+        }
+
+        .btn-danger:hover {
+            background: #991b1b;
+        }
+
+        .btn-small {
+            padding: 6px 14px;
+            font-size: 0.75rem;
+            width: auto;
+        }
+
+        /* Tabela responsiva */
+        .table-wrapper {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            padding: 12px 8px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th {
+            color: #2c3e50;
+            font-weight: 700;
+            background: #f1f5f9;
+        }
+
+        .status-badge {
+            background: #e2f0e8;
+            color: #1e6f3f;
+            padding: 4px 10px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            font-weight: bold;
+            display: inline-block;
+        }
+
+        .status-inativo {
+            background: #fee2e2;
+            color: #b91c1c;
+        }
+
+        .acoes button {
+            background: none;
+            border: none;
+            color: #2c7da0;
+            font-weight: bold;
+            cursor: pointer;
+            padding: 4px 8px;
+            width: auto;
+            margin-right: 5px;
+            font-size: 0.75rem;
+        }
+
+        .acoes button:hover {
+            text-decoration: underline;
+            background: none;
+            transform: none;
+            box-shadow: none;
+            color: #0f4c63;
+        }
+
+        .acoes .excluir {
+            color: #b91c1c;
+        }
+
+        /* Seção planos */
+        .planos-grid {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .plano-tag {
+            background: #eef2ff;
+            border-radius: 40px;
+            padding: 8px 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 1px solid transparent;
+        }
+
+        .plano-tag.active {
+            background: #2c7da0;
+            color: white;
+            border-color: #1f5e7a;
+        }
+
+        .info-plano {
+            font-size: 0.8rem;
+            color: #2c3e50;
+            margin-top: 12px;
+            background: #f8fafc;
+            padding: 12px;
+            border-radius: 20px;
+        }
+
+        /* Filtro e ações */
+        .filtro-bar {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .filtro-bar input {
+            flex: 2;
+            min-width: 150px;
+        }
+
+        /* Responsivo */
+        @media (max-width: 900px) {
+            .grid {
+                grid-template-columns: 1fr;
+            }
+            .header {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 30px;
+            font-size: 0.75rem;
+            color: #4a5b6e;
+        }
+    </style>
+</head>
+<body>
+<div class="dashboard">
+    <div class="header">
+        <div class="logo">
+            <h1>🏋️‍♂️ PowerFit Gym</h1>
+            <p>Sistema inteligente de gestão</p>
+        </div>
+        <div class="stats-cards" id="statsContainer">
+            <div class="stat-card"><span id="totalAlunos">0</span><label>Alunos</label></div>
+            <div class="stat-card"><span id="totalAtivos">0</span><label>Ativos</label></div>
+            <div class="stat-card"><span id="totalMensalidades">0</span><label>Mensal (R$)</label></div>
+        </div>
+    </div>
+
+    <div class="grid">
+        <!-- Painel de cadastro / edição -->
+        <div class="card">
+            <div class="card-header">
+                <span>📝 Cadastro de Aluno</span>
+                <button id="limparFormBtn" class="btn-small btn-secondary" style="width: auto;">Limpar</button>
+            </div>
+            <div class="card-body">
+                <form id="alunoForm">
+                    <input type="hidden" id="alunoId" value="">
+                    <div class="form-group">
+                        <label>Nome Completo *</label>
+                        <input type="text" id="nome" placeholder="Ex: Carlos Silva" required>
+                    </div>
+                    <div class="form-group">
+                        <label>E-mail</label>
+                        <input type="email" id="email" placeholder="contato@email.com">
+                    </div>
+                    <div class="form-group">
+                        <label>Telefone</label>
+                        <input type="text" id="telefone" placeholder="(11) 99999-9999">
+                    </div>
+                    <div class="form-group">
+                        <label>Plano</label>
+                        <select id="plano">
+                            <option value="Mensal">Mensal - R$ 129,90</option>
+                            <option value="Trimestral">Trimestral - R$ 349,90</option>
+                            <option value="Anual">Anual - R$ 1199,90</option>
+                            <option value="Diário">Diário - R$ 29,90</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="status">
+                            <option value="Ativo">✅ Ativo</option>
+                            <option value="Inativo">⛔ Inativo</option>
+                        </select>
+                    </div>
+                    <button type="submit" id="submitBtn">➕ Adicionar Aluno</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Listagem e filtros -->
+        <div class="card">
+            <div class="card-header">
+                <span>📋 Alunos Matriculados</span>
+                <button id="exportBtn" class="btn-small" style="background:#2b6e3c; width: auto;">📎 Exportar CSV</button>
+            </div>
+            <div class="card-body">
+                <div class="filtro-bar">
+                    <input type="text" id="filtroNome" placeholder="🔍 Filtrar por nome ou e-mail...">
+                    <select id="filtroStatus">
+                        <option value="todos">Todos os status</option>
+                        <option value="Ativo">Ativos</option>
+                        <option value="Inativo">Inativos</option>
+                    </select>
+                    <select id="filtroPlano">
+                        <option value="todos">Todos os planos</option>
+                        <option value="Mensal">Mensal</option>
+                        <option value="Trimestral">Trimestral</option>
+                        <option value="Anual">Anual</option>
+                        <option value="Diário">Diário</option>
+                    </select>
+                </div>
+                <div class="table-wrapper">
+                    <table id="tabelaAlunos">
+                        <thead>
+                            <tr><th>Nome</th><th>Contato</th><th>Plano</th><th>Status</th><th style="width:100px">Ações</th></tr>
+                        </thead>
+                        <tbody id="corpoTabela">
+                            <tr><td colspan="5" style="text-align:center;">Carregando alunos...</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="info-plano" id="infoPlanos">
+                    💡 Dica: Planos oferecem descontos progressivos. Gerencie status e mantenha alunos ativos!
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        PowerFit Gestão Completa • Dados salvos localmente • Controle de alunos, planos e mensalidades
+    </footer>
+</div>
+
+<script>
+    // ---------- MODELO DE DADOS ----------
+    let alunos = [];
+
+    // IDs para edição
+    let editandoId = null;
+
+    // Função para carregar dados do localStorage
+    function carregarDados() {
+        const dados = localStorage.getItem("powerfit_alunos");
+        if(dados) {
+            alunos = JSON.parse(dados);
+        } else {
+            // Dados de exemplo iniciais
+            alunos = [
+                { id: "1", nome: "Ana Beatriz Souza", email: "ana@email.com", telefone: "(11) 91234-5678", plano: "Mensal", status: "Ativo", valorMensalReferencia: 129.90 },
+                { id: "2", nome: "Carlos Eduardo Lima", email: "carlos@email.com", telefone: "(21) 98888-7777", plano: "Anual", status: "Ativo", valorMensalReferencia: 1199.90 },
+                { id: "3", nome: "Juliana Mendes", email: "ju.mendes@email.com", telefone: "(31) 97777-1234", plano: "Trimestral", status: "Inativo", valorMensalReferencia: 349.90 },
+                { id: "4", nome: "Ricardo Alves", email: "ricardo@email.com", telefone: "(41) 99999-8888", plano: "Diário", status: "Ativo", valorMensalReferencia: 29.90 }
+            ];
+            // garantir que cada aluno tenha um valor calculado de mensalidade base
+            alunos = alunos.map(aluno => {
+                if(!aluno.valorMensalReferencia) {
+                    aluno.valorMensalReferencia = obterValorPlano(aluno.plano);
+                }
+                return aluno;
+            });
+            salvarLocalStorage();
+        }
+        renderizarEstatisticas();
+        renderizarTabela();
+    }
+
+    // Função auxiliar: retorna valor padrão do plano (em R$)
+    function obterValorPlano(plano) {
+        switch(plano) {
+            case "Mensal": return 129.90;
+            case "Trimestral": return 349.90;
+            case "Anual": return 1199.90;
+            case "Diário": return 29.90;
+            default: return 0;
+        }
+    }
+
+    // Salvar no localStorage
+    function salvarLocalStorage() {
+        localStorage.setItem("powerfit_alunos", JSON.stringify(alunos));
+    }
+
+    // Gerar ID único
+    function gerarId() {
+        return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
+    }
+
+    // Calcular total de mensalidades (considerando apenas ativos, mas para métrica usamos valor referência)
+    function calcularReceitaMensalEstimada() {
+        let total = 0;
+        alunos.forEach(aluno => {
+            if(aluno.status === "Ativo") {
+                let valor = obterValorPlano(aluno.plano);
+                // Se for plano anual, dividimos por 12 para mensalidade estimada (melhor métrica)
+                if(aluno.plano === "Anual") valor = 1199.90 / 12;
+                if(aluno.plano === "Trimestral") valor = 349.90 / 3;
+                if(aluno.plano === "Diário") valor = 29.90 * 22; // média 22 dias úteis no mês para simular
+                total += valor;
+            }
+        });
+        return total.toFixed(2);
+    }
+
+    // Atualizar cards estatísticos
+    function renderizarEstatisticas() {
+        const totalAlunos = alunos.length;
+        const ativos = alunos.filter(a => a.status === "Ativo").length;
+        const receitaMensal = calcularReceitaMensalEstimada();
+        document.getElementById("totalAlunos").innerText = totalAlunos;
+        document.getElementById("totalAtivos").innerText = ativos;
+        document.getElementById("totalMensalidades").innerText = `R$ ${receitaMensal}`;
+    }
+
+    // Renderizar tabela com filtros
+    function renderizarTabela() {
+        const filtroNome = document.getElementById("filtroNome").value.toLowerCase();
+        const filtroStatus = document.getElementById("filtroStatus").value;
+        const filtroPlano = document.getElementById("filtroPlano").value;
+
+        let listaFiltrada = alunos.filter(aluno => {
+            let matchNome = aluno.nome.toLowerCase().includes(filtroNome) || (aluno.email && aluno.email.toLowerCase().includes(filtroNome));
+            let matchStatus = (filtroStatus === "todos") || (aluno.status === filtroStatus);
+            let matchPlano = (filtroPlano === "todos") || (aluno.plano === filtroPlano);
+            return matchNome && matchStatus && matchPlano;
+        });
+
+        const tbody = document.getElementById("corpoTabela");
+        if(listaFiltrada.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;">Nenhum aluno encontrado 📭</td></tr>`;
+            return;
+        }
+
+        let html = "";
+        listaFiltrada.forEach(aluno => {
+            const statusClass = aluno.status === "Ativo" ? "status-badge" : "status-badge status-inativo";
+            const statusText = aluno.status === "Ativo" ? "✅ Ativo" : "⛔ Inativo";
+            let contato = `${aluno.telefone || '—'} <br><small>${aluno.email || 'sem e-mail'}</small>`;
+            html += `
+                <tr>
+                    <td><strong>${escapeHtml(aluno.nome)}</strong></td>
+                    <td>${contato}</td>
+                    <td>${aluno.plano}</td>
+                    <td><span class="${statusClass}">${statusText}</span></td>
+                    <td class="acoes">
+                        <button class="editar" data-id="${aluno.id}">✏️ Editar</button>
+                        <button class="excluir" data-id="${aluno.id}">🗑️ Excluir</button>
+                    </td>
+                </tr>
+            `;
+        });
+        tbody.innerHTML = html;
+
+        // Adicionar eventos dinâmicos para editar/excluir
+        document.querySelectorAll('.editar').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = btn.getAttribute('data-id');
+                editarAluno(id);
+            });
+        });
+        document.querySelectorAll('.excluir').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const id = btn.getAttribute('data-id');
+                excluirAluno(id);
+            });
+        });
+    }
+
+    // Função simples para evitar XSS
+    function escapeHtml(str) {
+        if(!str) return '';
+        return str.replace(/[&<>]/g, function(m) {
+            if(m === '&') return '&amp;';
+            if(m === '<') return '&lt;';
+            if(m === '>') return '&gt;';
+            return m;
+        }).replace(/[\uD800-\uDBFF][\uDC00-\uDFFF]/g, function(c) {
+            return c;
+        });
+    }
+
+    // Submissão do formulário (criar ou atualizar)
+    function handleSubmit(event) {
+        event.preventDefault();
+        const nome = document.getElementById("nome").value.trim();
+        const email = document.getElementById("email").value.trim();
+        const telefone = document.getElementById("telefone").value.trim();
+        const plano = document.getElementById("plano").value;
+        const status = document.getElementById("status").value;
+        const alunoId = document.getElementById("alunoId").value;
+
+        if(!nome) {
+            alert("Por favor, informe o nome do aluno.");
+            return;
+        }
+
+        if(editandoId === null) {
+            // Criar novo aluno
+            const novoAluno = {
+                id: gerarId(),
+                nome: nome,
+                email: email,
+                telefone: telefone,
+                plano: plano,
+                status: status,
+                valorMensalReferencia: obterValorPlano(plano)
+            };
+            alunos.push(novoAluno);
+            salvarLocalStorage();
+            limparFormulario();
+            showTemporaryMessage("✅ Aluno adicionado com sucesso!");
+        } else {
+            // Atualizar aluno existente
+            const index = alunos.findIndex(a => a.id === editandoId);
+            if(index !== -1) {
+                alunos[index] = {
+                    ...alunos[index],
+                    nome: nome,
+                    email: email,
+                    telefone: telefone,
+                    plano: plano,
+                    status: status,
+                    valorMensalReferencia: obterValorPlano(plano)
+                };
+                salvarLocalStorage();
+                limparFormulario();
+                showTemporaryMessage("✏️ Aluno atualizado com sucesso!");
+            }
+            editandoId = null;
+            document.getElementById("submitBtn").innerHTML = "➕ Adicionar Aluno";
+        }
+        renderizarEstatisticas();
+        renderizarTabela();
+    }
+
+    function editarAluno(id) {
+        const aluno = alunos.find(a => a.id === id);
+        if(!aluno) return;
+        editandoId = id;
+        document.getElementById("alunoId").value = id;
+        document.getElementById("nome").value = aluno.nome;
+        document.getElementById("email").value = aluno.email || "";
+        document.getElementById("telefone").value = aluno.telefone || "";
+        document.getElementById("plano").value = aluno.plano;
+        document.getElementById("status").value = aluno.status;
+        document.getElementById("submitBtn").innerHTML = "💾 Atualizar Aluno";
+        // Rolar suavemente para o formulário
+        document.querySelector(".card").scrollIntoView({ behavior: "smooth" });
+    }
+
+    function excluirAluno(id) {
+        if(confirm("Tem certeza que deseja excluir este aluno permanentemente?")) {
+            alunos = alunos.filter(a => a.id !== id);
+            salvarLocalStorage();
+            if(editandoId === id) {
+                limparFormulario();
+            }
+            renderizarEstatisticas();
+            renderizarTabela();
+            showTemporaryMessage("🗑️ Aluno removido com sucesso.");
+        }
+    }
+
+    function limparFormulario() {
+        document.getElementById("alunoForm").reset();
+        document.getElementById("alunoId").value = "";
+        editandoId = null;
+        document.getElementById("submitBtn").innerHTML = "➕ Adicionar Aluno";
+        // Opcional: limpar também os valores padrões
+        document.getElementById("status").value = "Ativo";
+        document.getElementById("plano").value = "Mensal";
+    }
+
+    function showTemporaryMessage(msg) {
+        // Pequeno feedback flutuante sem precisar de lib
+        const notif = document.createElement("div");
+        notif.innerText = msg;
+        notif.style.position = "fixed";
+        notif.style.bottom = "20px";
+        notif.style.right = "20px";
+        notif.style.backgroundColor = "#1e2f3e";
+        notif.style.color = "white";
+        notif.style.padding = "12px 24px";
+        notif.style.borderRadius = "50px";
+        notif.style.zIndex = "999";
+        notif.style.fontWeight = "bold";
+        notif.style.boxShadow = "0 4px 12px rgba(0,0,0,0.2)";
+        notif.style.opacity = "0";
+        notif.style.transition = "opacity 0.2s";
+        document.body.appendChild(notif);
+        setTimeout(() => { notif.style.opacity = "1"; }, 10);
+        setTimeout(() => {
+            notif.style.opacity = "0";
+            setTimeout(() => notif.remove(), 300);
+        }, 2200);
+    }
+
+    // Exportar CSV
+    function exportarCSV() {
+        if(alunos.length === 0) {
+            alert("Nenhum aluno para exportar.");
+            return;
+        }
+        let csvRows = [];
+        csvRows.push(["ID","Nome","Email","Telefone","Plano","Status"].join(","));
+        for(let aluno of alunos) {
+            const row = [
+                `"${aluno.id}"`,
+                `"${aluno.nome.replace(/"/g, '""')}"`,
+                `"${(aluno.email || "").replace(/"/g, '""')}"`,
+                `"${(aluno.telefone || "").replace(/"/g, '""')}"`,
+                `"${aluno.plano}"`,
+                `"${aluno.status}"`
+            ];
+            csvRows.push(row.join(","));
+        }
+        const blob = new Blob(["\uFEFF" + csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
+        const link = document.createElement("a");
+        const url = URL.createObjectURL(blob);
+        link.href = url;
+        link.setAttribute("download", "powerfit_alunos.csv");
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        showTemporaryMessage("📁 Relatório CSV exportado!");
+    }
+
+    // Eventos de filtro
+    function configurarFiltros() {
+        const filtroNome = document.getElementById("filtroNome");
+        const filtroStatus = document.getElementById("filtroStatus");
+        const filtroPlano = document.getElementById("filtroPlano");
+        const aplicarFiltro = () => renderizarTabela();
+        filtroNome.addEventListener("input", aplicarFiltro);
+        filtroStatus.addEventListener("change", aplicarFiltro);
+        filtroPlano.addEventListener("change", aplicarFiltro);
+    }
+
+    // Evento de limpar formulário
+    document.getElementById("limparFormBtn").addEventListener("click", () => {
+        limparFormulario();
+    });
+
+    // Evento de exportação
+    document.getElementById("exportBtn").addEventListener("click", exportarCSV);
+
+    // Inicialização
+    function init() {
+        carregarDados();
+        document.getElementById("alunoForm").addEventListener("submit", handleSubmit);
+        configurarFiltros();
+        // Adicionar um pequeno helper para exibir info dos planos (dinâmico)
+        atualizarInfoPlanos();
+        document.getElementById("plano").addEventListener("change", atualizarInfoPlanos);
+    }
+
+    function atualizarInfoPlanos() {
+        const planoSelecionado = document.getElementById("plano").value;
+        let desc = "";
+        switch(planoSelecionado) {
+            case "Mensal": desc = "Mensalidade R$129,90/mês. Sem fidelidade."; break;
+            case "Trimestral": desc = "Plano Trimestral: R$349,90 (economia de ~R$39,80)"; break;
+            case "Anual": desc = "Plano Anual: R$1199,90 (equivalente a R$99,99/mês) - Melhor custo-benefício!"; break;
+            case "Diário": desc = "Diário avulso: R$29,90/dia. Acesso livre por 24h."; break;
+        }
+        const infoDiv = document.getElementById("infoPlanos");
+        if(infoDiv) infoDiv.innerHTML = `💡 ${desc} • Controle de alunos ativos gera receita recorrente.`;
+    }
+
+    // Iniciar sistema
+    init();
+</script>
+</body>
+</html>
