@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>GymManager Pro</title>
+
+<style>
+body {
+    font-family: Arial;
+    margin: 0;
+    background: #0f172a;
+    color: #fff;
+}
+
+header {
+    background: #1e293b;
+    padding: 15px;
+    text-align: center;
+    font-size: 22px;
+}
+
+.container {
+    display: flex;
+}
+
+.sidebar {
+    width: 200px;
+    background: #020617;
+    height: 100vh;
+    padding: 20px;
+}
+
+.sidebar button {
+    width: 100%;
+    margin: 5px 0;
+    padding: 10px;
+    background: #1e293b;
+    border: none;
+    color: white;
+    cursor: pointer;
+}
+
+.content {
+    flex: 1;
+    padding: 20px;
+}
+
+.card {
+    background: #1e293b;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 10px;
+}
+
+input, select {
+    padding: 8px;
+    margin: 5px;
+}
+
+button {
+    padding: 8px;
+    cursor: pointer;
+}
+
+.table {
+    width: 100%;
+    margin-top: 10px;
+    border-collapse: collapse;
+}
+
+.table th, .table td {
+    border: 1px solid #334155;
+    padding: 8px;
+}
+
+.status-ok { color: #22c55e; }
+.status-bad { color: #ef4444; }
+
+</style>
+</head>
+
+<body>
+
+<header>🏋️ Sistema de Academia</header>
+
+<div class="container">
+
+<div class="sidebar">
+    <button onclick="mostrar('dashboard')">Dashboard</button>
+    <button onclick="mostrar('alunos')">Alunos</button>
+    <button onclick="mostrar('pagamentos')">Pagamentos</button>
+</div>
+
+<div class="content">
+
+<!-- DASHBOARD -->
+<div id="dashboard">
+    <div class="card">
+        <h3>Total de Alunos: <span id="totalAlunos">0</span></h3>
+        <h3>Ativos: <span id="ativos">0</span></h3>
+        <h3>Inadimplentes: <span id="inadimplentes">0</span></h3>
+    </div>
+</div>
+
+<!-- ALUNOS -->
+<div id="alunos" style="display:none;">
+    <div class="card">
+        <h3>Cadastrar Aluno</h3>
+        <input type="text" id="nome" placeholder="Nome">
+        <select id="plano">
+            <option value="30">Mensal</option>
+            <option value="90">Trimestral</option>
+            <option value="365">Anual</option>
+        </select>
+        <button onclick="cadastrar()">Cadastrar</button>
+    </div>
+
+    <div class="card">
+        <h3>Lista de Alunos</h3>
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Nome</th>
+                    <th>Plano</th>
+                    <th>Vencimento</th>
+                    <th>Status</th>
+                    <th>Ação</th>
+                </tr>
+            </thead>
+            <tbody id="lista"></tbody>
+        </table>
+    </div>
+</div>
+
+<!-- PAGAMENTOS -->
+<div id="pagamentos" style="display:none;">
+    <div class="card">
+        <h3>Registrar Pagamento</h3>
+        <select id="alunoPagamento"></select>
+        <button onclick="pagar()">Confirmar Pagamento</button>
+    </div>
+</div>
+
+</div>
+</div>
+
+<script>
+let alunos = JSON.parse(localStorage.getItem("alunos")) || [];
+
+function salvar() {
+    localStorage.setItem("alunos", JSON.stringify(alunos));
+}
+
+function mostrar(secao) {
+    document.querySelectorAll(".content > div").forEach(div => div.style.display = "none");
+    document.getElementById(secao).style.display = "block";
+    atualizar();
+}
+
+function cadastrar() {
+    let nome = document.getElementById("nome").value;
+    let plano = parseInt(document.getElementById("plano").value);
+
+    let hoje = new Date();
+    hoje.setDate(hoje.getDate() + plano);
+
+    alunos.push({
+        nome,
+        plano,
+        vencimento: hoje.toISOString()
+    });
+
+    salvar();
+    atualizar();
+}
+
+function atualizar() {
+    let lista = document.getElementById("lista");
+    let select = document.getElementById("alunoPagamento");
+
+    lista.innerHTML = "";
+    select.innerHTML = "";
+
+    let ativos = 0;
+    let inad = 0;
+
+    alunos.forEach((a, i) => {
+        let venc = new Date(a.vencimento);
+        let hoje = new Date();
+
+        let status = venc >= hoje ? "Ativo" : "Inadimplente";
+
+        if (status === "Ativo") ativos++;
+        else inad++;
+
+        lista.innerHTML += `
+        <tr>
+            <td>${a.nome}</td>
+            <td>${a.plano} dias</td>
+            <td>${venc.toLocaleDateString()}</td>
+            <td class="${status === 'Ativo' ? 'status-ok' : 'status-bad'}">${status}</td>
+            <td><button onclick="remover(${i})">Excluir</button></td>
+        </tr>
+        `;
+
+        select.innerHTML += `<option value="${i}">${a.nome}</option>`;
+    });
+
+    document.getElementById("totalAlunos").innerText = alunos.length;
+    document.getElementById("ativos").innerText = ativos;
+    document.getElementById("inadimplentes").innerText = inad;
+}
+
+function pagar() {
+    let index = document.getElementById("alunoPagamento").value;
+
+    let plano = alunos[index].plano;
+    let hoje = new Date();
+    hoje.setDate(hoje.getDate() + plano);
+
+    alunos[index].vencimento = hoje.toISOString();
+
+    salvar();
+    atualizar();
+}
+
+function remover(i) {
+    alunos.splice(i, 1);
+    salvar();
+    atualizar();
+}
+
+atualizar();
+</script>
+
+</body>
+</html>
